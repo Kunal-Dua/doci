@@ -13,10 +13,40 @@ datasource db {
   provider = "postgresql"
 }
 
-model User{
-  id String @id @default(uuid())
-  email String @unique
-  firstName String
-  lastName String?
-  password String
+enum DocRole {
+  OWNER
+  VIEWER
+  EDITOR
+}
+
+model User {
+  id            String            @id @default(uuid())
+  email         String            @unique
+  firstName     String
+  lastName      String?
+  password      String
+  collaborators DocCallaborator[]
+  docs          Doc[]
+}
+
+model Doc {
+  id            String            @id @default(uuid())
+  title         String
+  author        User              @relation(fields: [authorId], references: [id])
+  authorId      String
+  collaborators DocCallaborator[]
+  dateCreated   DateTime          @default(now())
+  lastUpdated   DateTime          @updatedAt
+  role          DocRole           @default(OWNER)
+}
+
+model DocCallaborator {
+  id     String @default(uuid())
+  docId  String
+  userId String
+
+  doc  Doc  @relation(fields: [docId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+
+  @@id([docId, userId])
 }
