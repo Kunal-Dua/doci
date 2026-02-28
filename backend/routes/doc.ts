@@ -3,15 +3,18 @@ import { authMiddleware } from "../middleware/authMiddleware.js";
 import { prisma } from "../lib/prisma.js";
 import { DocRole } from "../generated/prisma/enums.js";
 import { createDoc, deleteDoc } from "../schemas/docSchema.js";
-import { docwsRoute } from "./docws.js";
 const docRouter = express.Router();
 
 docRouter.use(authMiddleware);
-docRouter.use("/d", docwsRoute);
 
 docRouter.get("/", async (req, res) => {
   const docs = await prisma.doc.findMany({});
   return res.send(docs);
+});
+
+docRouter.get("/:docId", async (req, res) => {
+  console.log(req.params.docId);
+  res.send("in ws");
 });
 
 docRouter.post("/create", async (req, res) => {
