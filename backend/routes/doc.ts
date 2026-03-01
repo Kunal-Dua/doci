@@ -2,19 +2,32 @@ import express from "express";
 import { authMiddleware } from "../middleware/authMiddleware.js";
 import { prisma } from "../lib/prisma.js";
 import { DocRole } from "../generated/prisma/enums.js";
-import { updateDoc, deleteDoc } from "../schemas/docSchema.js";
+import { updateDoc, deleteDoc, getDoc } from "../schemas/docSchema.js";
 const docRouter = express.Router();
 
-docRouter.get("/:docId", async (req, res) => {
+docRouter.get("/d/:docId", async (req, res) => {
   console.log(req.params.docId);
   res.send("in ws");
 });
 
 docRouter.use(authMiddleware);
 
-docRouter.get("/", async (req, res) => {
+docRouter.get("/alldoc", async (req, res) => {
   const docs = await prisma.doc.findMany({});
   return res.send(docs);
+});
+
+docRouter.get("/getdoc", async (req, res) => {
+  const bodyParsed = getDoc.safeParse(req.body);
+  if (!bodyParsed.success) {
+    return res.status(400).json({ msg: "Wrong inputs" });
+  }
+  const doc = await prisma.doc.findUnique({
+    where: {
+      id: bodyParsed.data.docId,
+    },
+  });
+  return res.send(doc);
 });
 
 docRouter.post("/create", async (req, res) => {

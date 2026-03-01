@@ -6,8 +6,12 @@ const updateDoc = z.object({
   role: DocRole,
 });
 
+const getDoc = z.object({
+  docId: z.string(),
+});
+
 const deleteDoc = z.object({
   docId: z.string(),
 });
 
-export { updateDoc, deleteDoc };
+export { updateDoc, getDoc, deleteDoc };
