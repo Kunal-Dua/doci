@@ -1,8 +1,8 @@
 import express from "express";
 import dotenv from "dotenv";
-import WebSocket from "ws";
 import cors from "cors";
 import { rootRouter } from "./routes/index.js";
+import { initWebSocket } from "./ws/wsServer.js";
 
 dotenv.config();
 
@@ -14,6 +14,8 @@ app.use(express.json());
 
 app.use("/api/v1", rootRouter);
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`Listening on ${port}`);
 });
+
+initWebSocket(server);

@@ -5,6 +5,11 @@ import { DocRole } from "../generated/prisma/enums.js";
 import { createDoc, deleteDoc } from "../schemas/docSchema.js";
 const docRouter = express.Router();
 
+docRouter.get("/:docId", async (req, res) => {
+  console.log(req.params.docId);
+  res.send("in ws");
+});
+
 docRouter.use(authMiddleware);
 
 docRouter.get("/", async (req, res) => {
@@ -12,10 +17,6 @@ docRouter.get("/", async (req, res) => {
   return res.send(docs);
 });
 
-docRouter.get("/:docId", async (req, res) => {
-  console.log(req.params.docId);
-  res.send("in ws");
-});
 
 docRouter.post("/create", async (req, res) => {
   const bodyParsed = createDoc.safeParse(req.body);
