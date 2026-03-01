@@ -5,7 +5,6 @@ import { handleDocumentSocket } from "./docHandler.js";
 export function initWebSocket(server: http.Server) {
   const wss = new WebSocketServer({ server });
   wss.on("connection", (ws, req) => {
-    console.log("WebSocket on connection");
     const url = req.url || "";
     if (!url.startsWith("/ws/doc/")) {
       ws.close();
@@ -16,6 +15,4 @@ export function initWebSocket(server: http.Server) {
 
     ws.on("error", console.error);
   });
-  console.log("web socket");
-  
 }

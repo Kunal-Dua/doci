@@ -29,7 +29,8 @@ export class DocumnetManager {
     if (!doc) {
       doc = new Delta();
     }
-    doc.compose(incoming);
+    doc = doc.compose(incoming);
+    this.documnets.set(docId, doc);
   }
 
   broadcast(docId: string, sender: WebSocket, message: string) {

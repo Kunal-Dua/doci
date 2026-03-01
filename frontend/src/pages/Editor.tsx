@@ -14,6 +14,7 @@ const Editor = () => {
 
   async function callWS() {
     const res = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/v1/doc/d/${docId}`);
+    console.log(res.data);
   }
 
   // useEffect(() => {

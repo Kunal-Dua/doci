@@ -7,7 +7,7 @@ const docRouter = express.Router();
 
 docRouter.get("/d/:docId", async (req, res) => {
   console.log(req.params.docId);
-  res.send("in ws");
+  res.json("in ws");
 });
 
 docRouter.use(authMiddleware);
