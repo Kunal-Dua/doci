@@ -33,7 +33,7 @@ userRouter.post("/signup", async (req, res) => {
   });
 
   const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET!);
-  return res.json("Bearer " + token);
+  return res.json(token);
 });
 
 userRouter.post("/signin", async (req, res) => {
@@ -54,11 +54,11 @@ userRouter.post("/signin", async (req, res) => {
     return res.status(409).json({ msg: "User doesn't exist" });
   }
 
-  const token = jwt.sign({ id: user.id }, process.env.JWT_SECERT!);
-  return res.json("Bearer " + token);
+  const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET!);
+  return res.json(token);
 });
 
-userRouter.post("/update", authMiddleware, async (req, res) => {
+userRouter.put("/update", authMiddleware, async (req, res) => {
   const bodyParsed = userUpdate.safeParse(req.body);
 
   if (!bodyParsed.success) {
@@ -67,7 +67,7 @@ userRouter.post("/update", authMiddleware, async (req, res) => {
 
   await prisma.user.update({
     where: {
-      email: req.userid,
+      id: req.userid,
     },
     data: {
       firstName: bodyParsed.data.firstName!,
