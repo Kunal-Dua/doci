@@ -2,7 +2,7 @@ import express from "express";
 import { authMiddleware } from "../middleware/authMiddleware.js";
 import { prisma } from "../lib/prisma.js";
 import { DocRole } from "../generated/prisma/enums.js";
-import { createDoc, deleteDoc } from "../schemas/docSchema.js";
+import { updateDoc, deleteDoc } from "../schemas/docSchema.js";
 const docRouter = express.Router();
 
 docRouter.get("/:docId", async (req, res) => {
@@ -17,22 +17,35 @@ docRouter.get("/", async (req, res) => {
   return res.send(docs);
 });
 
-
 docRouter.post("/create", async (req, res) => {
-  const bodyParsed = createDoc.safeParse(req.body);
-
-  if (!bodyParsed.success) {
-    return res.status(400).json({ msg: "Wrong inputs" });
-  }
-
   const docId = await prisma.doc.create({
     data: {
-      title: bodyParsed.data.title,
+      title: "",
       authorId: req.userid,
       role: DocRole.OWNER,
     },
     select: {
       id: true,
+    },
+  });
+
+  return res.json(docId);
+});
+
+docRouter.put("/update", async (req, res) => {
+  const bodyParsed = updateDoc.safeParse(req.body);
+
+  if (!bodyParsed.success) {
+    return res.status(400).json({ msg: "Wrong inputs" });
+  }
+
+  const docId = await prisma.doc.updateMany({
+    where: {
+      authorId: req.userid,
+    },
+    data: {
+      title: bodyParsed.data.title!,
+      role: bodyParsed.data.role as DocRole,
     },
   });
 
