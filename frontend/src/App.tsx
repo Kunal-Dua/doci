@@ -3,18 +3,20 @@ import "./App.css";
 import Document from "./pages/Document";
 import Signin from "./pages/Signin";
 import Signup from "./pages/Signup";
+import Editor from "./pages/Editor";
 
 function App() {
     return (
-        <>
-            <BrowserRouter>
-                <Routes>
-                    <Route path="/" element={<Document />}></Route>
-                    <Route path="/signin" element={<Signin />}></Route>
-                    <Route path="/signup" element={<Signup />}></Route>
-                </Routes>
-            </BrowserRouter>
-        </>
+      <>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Document />}></Route>
+            <Route path="/signin" element={<Signin />}></Route>
+            <Route path="/signup" element={<Signup />}></Route>
+            <Route path="/editor" element={<Editor />}></Route>
+          </Routes>
+        </BrowserRouter>
+      </>
     );
 }
 
