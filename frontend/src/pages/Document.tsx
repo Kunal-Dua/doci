@@ -6,8 +6,6 @@ const Document = () => {
   const navigate = useNavigate();
 
   async function createDoc() {
-    console.log(localStorage.getItem("token"));
-
     const docId = await axois.post(
       `${import.meta.env.VITE_BACKEND_URL}/api/v1/doc/create`,
       {},
@@ -17,8 +15,7 @@ const Document = () => {
         },
       }
     );
-    navigate("/editor");
-    console.log(docId);
+    navigate("/editor", { state: docId.data.id });
   }
 
   return (

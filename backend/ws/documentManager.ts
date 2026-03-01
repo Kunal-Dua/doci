@@ -1,14 +1,14 @@
 import WebSocket from "ws";
+import Delta from "quill-delta";
 
 export class DocumnetManager {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private documnets = new Map<string, any>();
+  private documnets = new Map<string, Delta>();
   private rooms = new Map<string, Set<WebSocket>>();
 
   join(docId: string, ws: WebSocket) {
     if (!this.rooms.has(docId)) {
       this.rooms.set(docId, new Set());
-      this.documnets.set(docId, []);
+      this.documnets.set(docId, new Delta());
     }
 
     this.rooms.get(docId)!.add(ws);
@@ -22,10 +22,14 @@ export class DocumnetManager {
     return this.documnets.get(docId);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  update(docId: string, delta: any) {
-    // this.documnets.set(docId, delta);
-    this.documnets.get(docId).push(delta);
+  update(docId: string, delta: Delta) {
+    const incoming = new Delta(delta);
+
+    let doc = this.documnets.get(docId);
+    if (!doc) {
+      doc = new Delta();
+    }
+    doc.compose(incoming);
   }
 
   broadcast(docId: string, sender: WebSocket, message: string) {

@@ -13,7 +13,7 @@ export function handleDocumentSocket(ws: WebSocket, docId?: string) {
   ws.send(
     JSON.stringify({
       type: "load-document",
-      data: docManager.get(docId),
+      delta: docManager.get(docId),
     }),
   );
 
