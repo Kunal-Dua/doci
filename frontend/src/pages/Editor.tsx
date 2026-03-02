@@ -4,24 +4,24 @@ import ReactQuill from "react-quill-new";
 import { useLocation } from "react-router-dom";
 import "quill/dist/quill.snow.css";
 import { Delta, type EmitterSource } from "quill";
+import DocToolBar from "../components/DocToolBar";
 
 const Editor = () => {
   const location = useLocation();
-  const docId = location.state || {};
+  const doc = location.state || {};
+  const docId = doc?.id;
   const [data, setData] = useState("");
   const wsRef = useRef<WebSocket | null>(null);
   const quillRef = useRef<ReactQuill | null>(null);
-
-  async function callWS() {
-   await axios.get(`${import.meta.env.VITE_BASE_URL}/api/v1/doc/d/${docId}`);
-  }
 
   // useEffect(() => {
   //   console.log("Data changed:", data);
   // }, [data]);
 
   useEffect(() => {
-    callWS();
+    axios.get(`${import.meta.env.VITE_BASE_URL}/api/v1/doc/d/${docId}`).catch(err => {
+      console.error("Something went wrong cant fetch document");
+    });
 
     const ws = new WebSocket(`${import.meta.env.VITE_WS_BACKEND_URL}/ws/doc/${docId}`);
     wsRef.current = ws;
@@ -70,7 +70,7 @@ const Editor = () => {
     source: EmitterSource,
     editor: ReactQuill.UnprivilegedEditor
   ) => {
-    setData(value);
+    // setData(value);
 
     const ws = wsRef.current;
     const cursor = editor.getSelection();
@@ -85,7 +85,12 @@ const Editor = () => {
     }
   };
 
-  return <ReactQuill ref={quillRef} theme="snow" value={data} onChange={handleChange} />;
+  return (
+    <>
+      <DocToolBar doc={doc} />
+      <ReactQuill ref={quillRef} theme="snow" value={data} onChange={handleChange} />
+    </>
+  );
 };
 
 export default Editor;

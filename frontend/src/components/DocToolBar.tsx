@@ -1,0 +1,169 @@
+import * as React from "react";
+import AppBar from "@mui/material/AppBar";
+import Box from "@mui/material/Box";
+import Toolbar from "@mui/material/Toolbar";
+import IconButton from "@mui/material/IconButton";
+import Typography from "@mui/material/Typography";
+import Menu from "@mui/material/Menu";
+import Container from "@mui/material/Container";
+import Avatar from "@mui/material/Avatar";
+import Button from "@mui/material/Button";
+import Tooltip from "@mui/material/Tooltip";
+import MenuItem from "@mui/material/MenuItem";
+import AdbIcon from "@mui/icons-material/Adb";
+import TextField from "@mui/material/TextField";
+
+const pages = ["File", "Edit", "View", "Format"];
+
+const menuOptions: Record<string, string[]> = {
+  File: ["New", "Open", "Save", "Save As"],
+  Edit: ["Undo", "Redo", "Cut", "Copy", "Paste"],
+  View: ["Zoom In", "Zoom Out", "Full Screen"],
+  Format: ["Bold", "Italic", "Underline"],
+};
+
+const settings = ["Profile", "Account", "Dashboard", "Logout"];
+
+function ResponsiveAppBar(doc: any) {
+  const [data, setData] = React.useState(doc.doc);
+
+  // PAGE MENU STATE
+
+  const [anchorElPage, setAnchorElPage] = React.useState<null | HTMLElement>(null);
+  const [activePage, setActivePage] = React.useState<string>("");
+
+  // USER MENU STATE
+  const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
+
+  // OPEN PAGE MENU
+  const handleOpenPageMenu = (event: React.MouseEvent<HTMLElement>, page: string) => {
+    setAnchorElPage(event.currentTarget);
+    setActivePage(page);
+  };
+
+  const handleClosePageMenu = () => {
+    setAnchorElPage(null);
+    setActivePage("");
+  };
+
+  const handleMenuOptionClick = (page: string, option: string) => {
+    console.log("Page:", page);
+    console.log("Clicked:", option);
+
+    // example actions
+    if (page === "File" && option === "New") {
+      // create new file logic
+    }
+
+    if (page === "File" && option === "Save") {
+      // save logic
+    }
+
+    if (page === "Edit" && option === "Copy") {
+      navigator.clipboard.writeText("Copied text");
+    }
+
+    handleClosePageMenu();
+  };
+
+  // USER MENU
+  const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorElUser(event.currentTarget);
+  };
+
+  const handleCloseUserMenu = () => {
+    setAnchorElUser(null);
+  };
+
+  return (
+    <AppBar position="static">
+      <Container maxWidth="xl">
+        <Toolbar disableGutters>
+          {/* LOGO */}
+          <AdbIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
+
+          {/* ===== PAGE BUTTONS ===== */}
+          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
+            {pages.map(page => (
+              <Button
+                key={page}
+                onClick={e => handleOpenPageMenu(e, page)}
+                sx={{ my: 2, color: "white", display: "block" }}
+              >
+                {page}
+              </Button>
+            ))}
+          </Box>
+
+          {/* ===== PAGE DROPDOWN MENU ===== */}
+          <Menu
+            anchorEl={anchorElPage}
+            open={Boolean(anchorElPage)}
+            onClose={handleClosePageMenu}
+            anchorOrigin={{
+              vertical: "bottom",
+              horizontal: "left",
+            }}
+            transformOrigin={{
+              vertical: "top",
+              horizontal: "left",
+            }}
+          >
+            {(menuOptions[activePage] || []).map(option => (
+              <MenuItem key={option} onClick={() => handleMenuOptionClick(activePage, option)}>
+                <Typography>{option}</Typography>
+              </MenuItem>
+            ))}
+          </Menu>
+
+          {/* ===== DOCUMENT TITLE ===== */}
+          <Box sx={{ flexGrow: 1 }}>
+            <TextField
+              variant="outlined"
+              size="small"
+              placeholder={data.title === "" ? "Enter Title" : data.title}
+              sx={{ bgcolor: "white", borderRadius: 1 }}
+            />
+          </Box>
+          <Box>
+            <Button variant="contained" endIcon={<AdbIcon />}>
+              Save
+            </Button>
+          </Box>
+
+          {/* ===== USER AVATAR ===== */}
+          <Box sx={{ flexGrow: 0 }}>
+            <Tooltip title="Open settings">
+              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                <Avatar alt="User" />
+              </IconButton>
+            </Tooltip>
+
+            <Menu
+              sx={{ mt: "45px" }}
+              anchorEl={anchorElUser}
+              open={Boolean(anchorElUser)}
+              onClose={handleCloseUserMenu}
+              anchorOrigin={{
+                vertical: "top",
+                horizontal: "right",
+              }}
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "right",
+              }}
+            >
+              {settings.map(setting => (
+                <MenuItem key={setting} onClick={handleCloseUserMenu}>
+                  <Typography textAlign="center">{setting}</Typography>
+                </MenuItem>
+              ))}
+            </Menu>
+          </Box>
+        </Toolbar>
+      </Container>
+    </AppBar>
+  );
+}
+
+export default ResponsiveAppBar;

@@ -36,7 +36,7 @@ const Document = () => {
 
   async function createDoc() {
     // FIXME: post to get possible
-    const docId = await axios.post(
+    const doc = await axios.post(
       `${import.meta.env.VITE_BACKEND_URL}/api/v1/doc/create`,
       {},
       {
@@ -45,7 +45,7 @@ const Document = () => {
         },
       }
     );
-    navigate("/editor", { state: docId.data.id });
+    navigate("/editor", { state: doc.data });
   }
 
   // useEffect(() => {

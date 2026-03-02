@@ -6,7 +6,6 @@ import { updateDoc, deleteDoc, getDoc } from "../schemas/docSchema.js";
 const docRouter = express.Router();
 
 docRouter.get("/d/:docId", async (req, res) => {
-  console.log(req.params.docId);
   res.json("in ws");
 });
 
@@ -44,18 +43,15 @@ docRouter.get("/getdoc", async (req, res) => {
 });
 
 docRouter.post("/create", async (req, res) => {
-  const docId = await prisma.doc.create({
+  const doc = await prisma.doc.create({
     data: {
       title: "",
       authorId: req.userid,
       role: DocRole.OWNER,
-    },
-    select: {
-      id: true,
-    },
+    }
   });
 
-  return res.json(docId);
+  return res.json(doc);
 });
 
 docRouter.put("/update", async (req, res) => {
