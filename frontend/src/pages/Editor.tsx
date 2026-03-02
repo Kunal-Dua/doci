@@ -10,9 +10,10 @@ const Editor = () => {
   const location = useLocation();
   const doc = location.state || {};
   const docId = doc?.id;
-  const [data, setData] = useState("");
+  const [data, setData] = useState();
   const wsRef = useRef<WebSocket | null>(null);
   const quillRef = useRef<ReactQuill | null>(null);
+  const [checkedSwitch, setCheckedSwitch] = useState(false);
 
   // useEffect(() => {
   //   console.log("Data changed:", data);
@@ -23,7 +24,6 @@ const Editor = () => {
     //   alert("Please enter title");
     //   return;
     // }
-    console.log(wsRef.current);
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       wsRef.current?.send(
         JSON.stringify({
@@ -47,7 +47,7 @@ const Editor = () => {
 
       if (data.type === "load-document") {
         editor.setContents(data.delta);
-        // setData(m => m + data.delta);
+        setData(data.delta);
       }
 
       if (data.type === "receive-changes") {
@@ -102,7 +102,12 @@ const Editor = () => {
 
   return (
     <>
-      <DocToolBar doc={doc} onSave={onSave} />
+      <DocToolBar
+        doc={doc}
+        onSave={onSave}
+        checkedSwitch={checkedSwitch}
+        setCheckedSwitch={setCheckedSwitch}
+      />
       <ReactQuill ref={quillRef} theme="snow" value={data} onChange={handleChange} />
     </>
   );

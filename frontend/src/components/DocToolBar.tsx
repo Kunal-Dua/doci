@@ -12,6 +12,8 @@ import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import AdbIcon from "@mui/icons-material/Adb";
 import TextField from "@mui/material/TextField";
+import Switch from "@mui/material/Switch";
+import FormControlLabel from "@mui/material/FormControlLabel";
 
 const pages = ["File", "Edit", "View", "Format"];
 
@@ -27,9 +29,11 @@ const settings = ["Profile", "Account", "Dashboard", "Logout"];
 type DocToolbarProps = {
   onSave: () => void;
   doc: any;
+  checkedSwitch: boolean;
+  setCheckedSwitch: (checked: boolean) => void;
 };
 
-function ResponsiveAppBar({ doc, onSave }: DocToolbarProps) {
+function ResponsiveAppBar({ doc, onSave, checkedSwitch, setCheckedSwitch }: DocToolbarProps) {
   // PAGE MENU STATE
 
   const [anchorElPage, setAnchorElPage] = React.useState<null | HTMLElement>(null);
@@ -77,6 +81,15 @@ function ResponsiveAppBar({ doc, onSave }: DocToolbarProps) {
     setAnchorElUser(null);
   };
 
+  const handleChangeSwitch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if ((doc.title !== "undefined" || doc.title !== "") && checkedSwitch === true)
+      setCheckedSwitch(event.target.checked);
+    else{
+        alert("Please enter title to enable auto save");
+        return;
+    }
+  };
+
   return (
     <AppBar position="static">
       <Container maxWidth="xl">
@@ -119,6 +132,14 @@ function ResponsiveAppBar({ doc, onSave }: DocToolbarProps) {
           </Menu>
 
           {/* ===== DOCUMENT TITLE ===== */}
+          <Box>
+            <FormControlLabel
+              control={
+                <Switch color="secondary" checked={checkedSwitch} onChange={handleChangeSwitch} />
+              }
+              label="Auto Save"
+            />
+          </Box>
           <Box sx={{ flexGrow: 1 }}>
             <TextField
               variant="outlined"
