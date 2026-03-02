@@ -2,24 +2,20 @@ import { WebSocket } from "ws";
 import { DocumnetManager } from "./documentManager.js";
 
 const docManager = new DocumnetManager();
-
-export function handleDocumentSocket(ws: WebSocket, docId?: string) {
+export async function handleDocumentSocket(ws: WebSocket, docId?: string) {
   if (!docId) {
     return ws.close();
   }
 
-  docManager.join(docId, ws);
-
   ws.send(
     JSON.stringify({
       type: "load-document",
-      delta: docManager.get(docId),
+      delta: await docManager.get(docId),
     }),
   );
 
   ws.on("message", (msg) => {
     const data = JSON.parse(msg.toString());
-
     if (data.type === "send-changes") {
       docManager.update(docId, data.delta);
 
@@ -31,6 +27,14 @@ export function handleDocumentSocket(ws: WebSocket, docId?: string) {
           delta: data.delta,
         }),
       );
+    }
+
+    if (data.type === "save-changes") {
+      docManager.save(docId);
+    }
+
+    if (data.type === "add-collab") {
+      docManager.addCollab(docId);
     }
   });
 

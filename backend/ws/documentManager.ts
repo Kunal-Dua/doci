@@ -1,5 +1,7 @@
 import WebSocket from "ws";
 import Delta from "quill-delta";
+import { prisma } from "../lib/prisma";
+import { Prisma } from "../generated/prisma/client";
 
 export class DocumnetManager {
   private documnets = new Map<string, Delta>();
@@ -18,17 +20,28 @@ export class DocumnetManager {
     this.rooms.get(docId)?.delete(ws);
   }
 
-  get(docId: string) {
-    return this.documnets.get(docId);
+  async get(docId: string) {
+    const dbDoc = await prisma.doc.findUnique({
+      where: {
+        id: docId,
+      },
+      select: {
+        content: true,
+      },
+    });
+    if (!dbDoc) return new Delta();
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const delta = new Delta(dbDoc.content as any);
+    this.documnets.set(docId, delta);
+    
+    return delta;
   }
 
   update(docId: string, delta: Delta) {
     const incoming = new Delta(delta);
 
-    let doc = this.documnets.get(docId);
-    if (!doc) {
-      doc = new Delta();
-    }
+    let doc = this.documnets.get(docId) ?? new Delta();
     doc = doc.compose(incoming);
     this.documnets.set(docId, doc);
   }
@@ -40,4 +53,25 @@ export class DocumnetManager {
       }
     });
   }
+
+  async save(docId: string) {
+    let doc = this.documnets.get(docId);
+    if (!doc) {
+      doc = new Delta();
+    }
+
+    await prisma.doc.update({
+      where: {
+        id: docId,
+      },
+      data: {
+        content: doc.ops as Prisma.InputJsonValue,
+      },
+    });
+  }
+
+  //TODO: add collab logic
+  async addCollab(docId: string) {}
+
+  //TODO: add auto save
 }

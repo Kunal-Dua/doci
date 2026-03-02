@@ -45,10 +45,11 @@ docRouter.get("/getdoc", async (req, res) => {
 docRouter.post("/create", async (req, res) => {
   const doc = await prisma.doc.create({
     data: {
-      title: "",
+      title: "undefined",
       authorId: req.userid,
       role: DocRole.OWNER,
-    }
+      content: {},
+    },
   });
 
   return res.json(doc);

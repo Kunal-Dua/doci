@@ -2,9 +2,9 @@ import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import ReactQuill from "react-quill-new";
 import { useLocation } from "react-router-dom";
-import "quill/dist/quill.snow.css";
 import { Delta, type EmitterSource } from "quill";
 import DocToolBar from "../components/DocToolBar";
+import "quill/dist/quill.snow.css";
 
 const Editor = () => {
   const location = useLocation();
@@ -17,6 +17,21 @@ const Editor = () => {
   // useEffect(() => {
   //   console.log("Data changed:", data);
   // }, [data]);
+
+  const onSave = () => {
+    // if (doc.title == "undefined") {
+    //   alert("Please enter title");
+    //   return;
+    // }
+    console.log(wsRef.current);
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      wsRef.current?.send(
+        JSON.stringify({
+          type: "save-changes",
+        })
+      );
+    }
+  };
 
   useEffect(() => {
     axios.get(`${import.meta.env.VITE_BASE_URL}/api/v1/doc/d/${docId}`).catch(err => {
@@ -87,7 +102,7 @@ const Editor = () => {
 
   return (
     <>
-      <DocToolBar doc={doc} />
+      <DocToolBar doc={doc} onSave={onSave} />
       <ReactQuill ref={quillRef} theme="snow" value={data} onChange={handleChange} />
     </>
   );

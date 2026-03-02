@@ -23,7 +23,7 @@ const Document = () => {
             <DocBuilder
               key={doc.id}
               onClick={() => {
-                navigate("/editor", { state: doc.id });
+                navigate("/editor", { state: doc });
               }}
               title={doc.title}
               src={"src"}

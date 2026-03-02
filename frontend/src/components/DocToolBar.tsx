@@ -24,9 +24,12 @@ const menuOptions: Record<string, string[]> = {
 
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
-function ResponsiveAppBar(doc: any) {
-  const [data, setData] = React.useState(doc.doc);
+type DocToolbarProps = {
+  onSave: () => void;
+  doc: any;
+};
 
+function ResponsiveAppBar({ doc, onSave }: DocToolbarProps) {
   // PAGE MENU STATE
 
   const [anchorElPage, setAnchorElPage] = React.useState<null | HTMLElement>(null);
@@ -60,7 +63,6 @@ function ResponsiveAppBar(doc: any) {
     }
 
     if (page === "Edit" && option === "Copy") {
-      navigator.clipboard.writeText("Copied text");
     }
 
     handleClosePageMenu();
@@ -121,12 +123,12 @@ function ResponsiveAppBar(doc: any) {
             <TextField
               variant="outlined"
               size="small"
-              placeholder={data.title === "" ? "Enter Title" : data.title}
+              placeholder={doc.title === "" ? "Enter Title" : doc.title}
               sx={{ bgcolor: "white", borderRadius: 1 }}
             />
           </Box>
           <Box>
-            <Button variant="contained" endIcon={<AdbIcon />}>
+            <Button variant="contained" endIcon={<AdbIcon />} onClick={onSave}>
               Save
             </Button>
           </Box>

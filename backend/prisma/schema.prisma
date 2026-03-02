@@ -31,13 +31,14 @@ model User {
 
 model Doc {
   id            String            @id @default(uuid())
-  title         String
+  title         String            @default("undefined")
   author        User              @relation(fields: [authorId], references: [id])
   authorId      String
   collaborators DocCallaborator[]
   dateCreated   DateTime          @default(now())
   lastUpdated   DateTime          @updatedAt
   role          DocRole           @default(OWNER)
+  content       Json              // Quill Delta JSON
 }
 
 model DocCallaborator {
