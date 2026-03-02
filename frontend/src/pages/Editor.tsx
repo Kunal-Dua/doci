@@ -13,8 +13,7 @@ const Editor = () => {
   const quillRef = useRef<ReactQuill | null>(null);
 
   async function callWS() {
-    const res = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/v1/doc/d/${docId}`);
-    console.log(res.data);
+   await axios.get(`${import.meta.env.VITE_BASE_URL}/api/v1/doc/d/${docId}`);
   }
 
   // useEffect(() => {

@@ -13,7 +13,20 @@ docRouter.get("/d/:docId", async (req, res) => {
 docRouter.use(authMiddleware);
 
 docRouter.get("/alldoc", async (req, res) => {
-  const docs = await prisma.doc.findMany({});
+  const docs = await prisma.doc.findMany({
+    where: {
+      OR: [
+        { authorId: req.userid },
+        {
+          collaborators: {
+            some: {
+              userId: req.userid,
+            },
+          },
+        },
+      ],
+    },
+  });
   return res.send(docs);
 });
 
