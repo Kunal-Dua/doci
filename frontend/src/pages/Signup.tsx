@@ -19,7 +19,6 @@ const Signup = () => {
         inputs
       );
       const jwt = res.data;
-      console.log(jwt);
 
       localStorage.setItem("token", jwt);
       navigate("/");

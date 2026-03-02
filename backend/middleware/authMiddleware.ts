@@ -24,7 +24,6 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
     }
 
     const decoded = jwt.verify(authToken, process.env.JWT_SECRET!) as JwtPayload;
-    console.log(decoded);
 
     if (typeof decoded !== "object" || !decoded.id) {
       return res.status(401).json({
