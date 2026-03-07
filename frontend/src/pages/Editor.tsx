@@ -7,6 +7,8 @@ import ReactQuill, { Quill } from "react-quill-new";
 import QuillCursors from "quill-cursors";
 Quill.register("modules/cursors", QuillCursors);
 import "quill/dist/quill.snow.css";
+import { useRecoilValue } from "recoil";
+import { userAtom } from "../store/atom/userAtom";
 
 const getColor = (id: string) => {
   let hash = 0;
@@ -29,6 +31,7 @@ const modules = {
 };
 
 const Editor = () => {
+  const user = useRecoilValue(userAtom);
   const location = useLocation();
   const doc = location.state || {};
   const docId = doc?.id;
@@ -125,7 +128,7 @@ const Editor = () => {
         const existing = cursors.cursors().find((c: any) => c.id === data.userId);
 
         if (!existing) {
-          cursors.createCursor(data.userId, data.userId, data.color);
+          cursors.createCursor(data.userId, user.firstName, data.color);
         }
         cursors.moveCursor(data.userId, data.cursor);
       }

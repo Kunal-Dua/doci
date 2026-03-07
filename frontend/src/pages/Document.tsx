@@ -3,6 +3,8 @@ import Navbar from "../components/Navbar";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import DocBuilder from "../components/DocBuilder";
+import { useSetRecoilState } from "recoil";
+import { userAtom } from "../store/atom/userAtom";
 
 type DocType = {
   id: string;
@@ -13,6 +15,7 @@ type DocType = {
 
 const Document = () => {
   const [docs, setDocs] = useState<DocType[]>([]);
+  const setUserState = useSetRecoilState(userAtom);
   const navigate = useNavigate();
 
   const AllDocs = () => {
@@ -55,6 +58,14 @@ const Document = () => {
         },
       })
       .then(res => setDocs(res.data));
+
+    axios
+      .get(`${import.meta.env.VITE_BACKEND_URL}/api/v1/user/getuser`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+      .then(res => setUserState(res.data));
   }, []);
 
   return (

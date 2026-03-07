@@ -77,4 +77,13 @@ userRouter.put("/update", authMiddleware, async (req, res) => {
   });
 });
 
+userRouter.get("/getuser", authMiddleware, async (req, res) => {
+  const user = await prisma.user.findUnique({
+    where: {
+      id: req.userid,
+    },
+  });
+  res.send(user);
+});
+
 export { userRouter };
