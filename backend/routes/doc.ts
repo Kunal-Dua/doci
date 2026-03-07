@@ -62,17 +62,18 @@ docRouter.put("/update", async (req, res) => {
     return res.status(400).json({ msg: "Wrong inputs" });
   }
 
-  const docId = await prisma.doc.updateMany({
+  await prisma.doc.update({
     where: {
+      id: bodyParsed.data.docId,
       authorId: req.userid,
     },
     data: {
       title: bodyParsed.data.title!,
-      role: bodyParsed.data.role as DocRole,
+      // role: bodyParsed.data.role as DocRole,
     },
   });
 
-  return res.json(docId);
+  return res.send("Succesfully added");
 });
 
 docRouter.post("/collab", async (req, res) => {

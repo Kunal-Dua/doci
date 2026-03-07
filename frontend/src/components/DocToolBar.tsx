@@ -35,12 +35,7 @@ type DocToolbarProps = {
   setCheckedSwitch: (checked: boolean) => void;
 };
 
-function ResponsiveAppBar({
-  doc,
-  onSave,
-  checkedSwitch,
-  setCheckedSwitch,
-}: DocToolbarProps) {
+function ResponsiveAppBar({ doc, onSave, checkedSwitch, setCheckedSwitch }: DocToolbarProps) {
   // PAGE MENU STATE
 
   const [anchorElPage, setAnchorElPage] = useState<null | HTMLElement>(null);
@@ -109,14 +104,30 @@ function ResponsiveAppBar({
   };
 
   const addCollabEmail = async () => {
-    console.log(email);
-    await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/v1/doc/collab`, {docId:doc.id,email:email}, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    });
+    await axios.post(
+      `${import.meta.env.VITE_BACKEND_URL}/api/v1/doc/collab`,
+      { docId: doc.id, email: email },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
     setEmail("");
     handleClose();
+  };
+
+  const [title, setTitle] = useState(doc.title);
+  const onUpdateTitle = async () => {
+    await axios.put(
+      `${import.meta.env.VITE_BACKEND_URL}/api/v1/doc/update`,
+      { docId: doc.id, title: title },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
   };
 
   const open = Boolean(anchorEl);
@@ -202,9 +213,14 @@ function ResponsiveAppBar({
             <TextField
               variant="outlined"
               size="small"
-              placeholder={doc.title === "" ? "Enter Title" : doc.title}
+              placeholder={title === "" ? "Enter Title" : title}
               sx={{ bgcolor: "white", borderRadius: 1 }}
+              value={title}
+              onChange={e => setTitle(e.target.value)}
             />
+            <Button variant="contained" onClick={onUpdateTitle}>
+              Update title
+            </Button>
           </Box>
           <Box>
             <Button variant="contained" endIcon={<AdbIcon />} onClick={onSave}>

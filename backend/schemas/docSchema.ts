@@ -2,8 +2,9 @@ import z from "zod";
 import { DocRole } from "../generated/prisma/enums.js";
 
 const updateDoc = z.object({
+  docId:z.string(),
   title: z.string().min(1).optional(),
-  role: DocRole,
+  // role: DocRole,
 });
 
 const getDoc = z.object({
