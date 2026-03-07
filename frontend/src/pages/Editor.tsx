@@ -1,9 +1,22 @@
 import { useEffect, useRef, useState } from "react";
-import ReactQuill from "react-quill-new";
 import { useLocation } from "react-router-dom";
 import { Delta, type EmitterSource } from "quill";
 import DocToolBar from "../components/DocToolBar";
+import { jwtDecode } from "jwt-decode";
+import ReactQuill, { Quill } from "react-quill-new";
+import QuillCursors from "quill-cursors";
+Quill.register("modules/cursors", QuillCursors);
 import "quill/dist/quill.snow.css";
+
+type TokenPayload = {
+  id: string;
+  iat: number;
+};
+
+const modules = {
+  toolbar: true,
+  cursors: true,
+};
 
 const Editor = () => {
   const location = useLocation();
@@ -11,6 +24,10 @@ const Editor = () => {
   const docId = doc?.id;
   const wsRef = useRef<WebSocket | null>(null);
   const quillRef = useRef<ReactQuill | null>(null);
+
+  const token = localStorage.getItem("token");
+  const decoded = token ? jwtDecode<TokenPayload>(token) : null;
+  const userId = decoded?.id;
 
   const checkedAutoSaveSwitchRef = useRef(false);
   const [autoSave, setAutoSave] = useState(() => {
@@ -85,18 +102,36 @@ const Editor = () => {
           editor.setSelection(newIndex, range.length);
         }
       }
+
+      if (data.type === "receive-cursor-update") {
+
+        if (data.userId === userId) return;
+
+        const quill = quillRef.current?.getEditor();
+        const cursors = quill?.getModule("cursors") as any;
+
+        if (!cursors) return;
+
+        const existing = cursors.cursors().find((c: any) => c.id === data.userId);
+
+        if (!existing) {
+          cursors.createCursor(data.userId, data.userId, "blue");
+        }
+        cursors.moveCursor(data.userId, data.cursor);
+      }
     };
 
-    ws.onopen = () => {
-      ws.send(
-        JSON.stringify({
-          type: "send-changes",
-          delta: "hello",
-        })
-      );
-    };
+    // ws.onopen = () => {
+    //   ws.send(
+    //     JSON.stringify({
+    //       type: "send-changes",
+    //       delta: "hello",
+    //     })
+    //   );
+    // };
 
     return () => {
+      // onSave();
       ws.close();
     };
   }, []);
@@ -107,15 +142,35 @@ const Editor = () => {
     source: EmitterSource,
     editor: ReactQuill.UnprivilegedEditor
   ) => {
-
     const ws = wsRef.current;
-    const cursor = editor.getSelection();
     if (ws && ws.readyState === WebSocket.OPEN && source === "user") {
       ws.send(
         JSON.stringify({
           type: "send-changes",
           delta,
-          cursor,
+          userId,
+        })
+      );
+    }
+  };
+
+  const handleChangeSelection = (
+    selection: ReactQuill.Range,
+    source: EmitterSource,
+    editor: ReactQuill.UnprivilegedEditor
+  ) => {
+    const ws = wsRef.current;
+    const range = selection;
+
+    // if (!range || !selection) return;
+
+    if (ws && ws.readyState === WebSocket.OPEN && source == "user") {
+      ws.send(
+        JSON.stringify({
+          type: "cursor-update",
+          cursor: selection,
+          docId,
+          userId,
         })
       );
     }
@@ -129,7 +184,13 @@ const Editor = () => {
         autoSave={autoSave}
         onToggleAutoSave={handleToggleAutoSave}
       />
-      <ReactQuill ref={quillRef} theme="snow" onChange={handleChange} />
+      <ReactQuill
+        ref={quillRef}
+        theme="snow"
+        onChange={handleChange}
+        onChangeSelection={handleChangeSelection}
+        modules={modules}
+      />
     </>
   );
 };

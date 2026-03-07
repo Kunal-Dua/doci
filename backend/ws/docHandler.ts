@@ -37,6 +37,9 @@ export async function handleDocumentSocket(ws: WebSocket, docId?: string) {
     if (data.type === "autosave-changes") {
       docManager.autoSave();
     }
+    if (data.type === "cursor-update") {
+      docManager.cursorUpdate(docId, ws, data.userId, data.cursor);
+    }
   });
 
   ws.on("close", () => {

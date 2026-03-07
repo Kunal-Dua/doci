@@ -54,6 +54,22 @@ export class DocumnetManager {
     });
   }
 
+  cursorUpdate(docId: string, sender: WebSocket, userId: string, cursor: Range) {
+    const clients = this.rooms.get(docId);
+
+    clients?.forEach((client) => {
+      if (client !== sender && client.readyState === WebSocket.OPEN) {
+        client.send(
+          JSON.stringify({
+            type: "receive-cursor-update",
+            userId,
+            cursor,
+          }),
+        );
+      }
+    });
+  }
+
   async autoSave() {
     if (this.saving) return;
     this.saving = true;
