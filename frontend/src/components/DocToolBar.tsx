@@ -1,25 +1,23 @@
-import React, {
-  useState,
-  type ChangeEvent,
-  type MouseEvent,
-} from "react";
-import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
-import Toolbar from "@mui/material/Toolbar";
-import IconButton from "@mui/material/IconButton";
-import Typography from "@mui/material/Typography";
-import Menu from "@mui/material/Menu";
-import Container from "@mui/material/Container";
-import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
-import Tooltip from "@mui/material/Tooltip";
-import MenuItem from "@mui/material/MenuItem";
+import React, { type ChangeEvent, type MouseEvent, useState } from "react";
 import AdbIcon from "@mui/icons-material/Adb";
-import TextField from "@mui/material/TextField";
-import Switch from "@mui/material/Switch";
+import AppBar from "@mui/material/AppBar";
+import Avatar from "@mui/material/Avatar";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Container from "@mui/material/Container";
 import FormControlLabel from "@mui/material/FormControlLabel";
+import IconButton from "@mui/material/IconButton";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
 import Popover from "@mui/material/Popover";
+import Switch from "@mui/material/Switch";
+import TextField from "@mui/material/TextField";
+import Toolbar from "@mui/material/Toolbar";
+import Tooltip from "@mui/material/Tooltip";
+import Typography from "@mui/material/Typography";
 import axios from "axios";
+import { useRecoilValue } from "recoil";
+import { docAtom } from "../store/atom/docAtom";
 
 const pages = ["File", "Edit", "View", "Format"];
 
@@ -34,12 +32,13 @@ const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
 type DocToolbarProps = {
   onSave: () => void;
-  doc: any;
   autoSave: boolean;
   onToggleAutoSave: (value: boolean) => void;
 };
 
-const DocToolBar = ({ doc, onSave, autoSave, onToggleAutoSave }: DocToolbarProps) => {
+const DocToolBar = ({ onSave, autoSave, onToggleAutoSave }: DocToolbarProps) => {
+  const doc = useRecoilValue(docAtom);
+
   // PAGE MENU STATE
 
   const [anchorElPage, setAnchorElPage] = useState<null | HTMLElement>(null);

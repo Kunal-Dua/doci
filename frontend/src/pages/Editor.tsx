@@ -1,14 +1,15 @@
 import { useEffect, useRef, useState } from "react";
-import { useLocation } from "react-router-dom";
-import { Delta, type EmitterSource } from "quill";
-import DocToolBar from "../components/DocToolBar";
-import { jwtDecode } from "jwt-decode";
 import ReactQuill, { Quill } from "react-quill-new";
+import { jwtDecode } from "jwt-decode";
+import { Delta, type EmitterSource } from "quill";
 import QuillCursors from "quill-cursors";
-Quill.register("modules/cursors", QuillCursors);
-import "quill/dist/quill.snow.css";
 import { useRecoilValue } from "recoil";
+import DocToolBar from "../components/DocToolBar";
+import { docAtom } from "../store/atom/docAtom";
 import { userAtom } from "../store/atom/userAtom";
+import "quill/dist/quill.snow.css";
+
+Quill.register("modules/cursors", QuillCursors);
 
 const getColor = (id: string) => {
   let hash = 0;
@@ -32,8 +33,7 @@ const modules = {
 
 const Editor = () => {
   const user = useRecoilValue(userAtom);
-  const location = useLocation();
-  const doc = location.state || {};
+  const doc = useRecoilValue(docAtom);
   const docId = doc?.id;
   const wsRef = useRef<WebSocket | null>(null);
   const quillRef = useRef<ReactQuill | null>(null);
@@ -193,7 +193,6 @@ const Editor = () => {
   return (
     <>
       <DocToolBar
-        doc={doc}
         onSave={onSave}
         autoSave={autoSave}
         onToggleAutoSave={handleToggleAutoSave}

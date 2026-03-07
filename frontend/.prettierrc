@@ -1,9 +1,22 @@
 {
-  "semi": true, 
-  "singleQuote": false, 
-  "tabWidth": 2, 
+  "importOrder": [
+    "^react",
+    "^@reduxjs/toolkit",
+    "<THIRD_PARTY_MODULES>",
+    "^components/(.*)$",
+    "^utils/(.*)$",
+    "^[./]",
+    ".css$"
+  ],
+  "importOrderSeparation": false,
+  "importOrderSortSpecifiers": true,
+  "plugins": ["@trivago/prettier-plugin-sort-imports"],
+
+  "semi": true,
+  "singleQuote": false,
+  "tabWidth": 2,
   "trailingComma": "es5",
-  "printWidth": 100, 
-  "bracketSpacing": true, 
-  "arrowParens": "avoid" 
+  "printWidth": 100,
+  "bracketSpacing": true,
+  "arrowParens": "avoid"
 }

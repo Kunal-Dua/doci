@@ -1,9 +1,10 @@
-import { useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import DocBuilder from "../components/DocBuilder";
 import { useSetRecoilState } from "recoil";
+import DocBuilder from "../components/DocBuilder";
+import Navbar from "../components/Navbar";
+import { docAtom } from "../store/atom/docAtom";
 import { userAtom } from "../store/atom/userAtom";
 
 type DocType = {
@@ -14,9 +15,10 @@ type DocType = {
 };
 
 const Document = () => {
+  const navigate = useNavigate();
   const [docs, setDocs] = useState<DocType[]>([]);
   const setUserState = useSetRecoilState(userAtom);
-  const navigate = useNavigate();
+  const docState = useSetRecoilState(docAtom);
 
   const AllDocs = () => {
     return (
@@ -26,7 +28,8 @@ const Document = () => {
             <DocBuilder
               key={doc.id}
               onClick={() => {
-                navigate("/editor", { state: doc });
+                docState(doc);
+                navigate("/editor");
               }}
               title={doc.title}
               src={"src"}
@@ -43,7 +46,8 @@ const Document = () => {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
     });
-    navigate("/editor", { state: doc.data });
+    docState(doc.data);
+    navigate("/editor");
   }
 
   // useEffect(() => {
