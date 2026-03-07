@@ -8,6 +8,16 @@ import QuillCursors from "quill-cursors";
 Quill.register("modules/cursors", QuillCursors);
 import "quill/dist/quill.snow.css";
 
+const getColor = (id: string) => {
+  let hash = 0;
+
+  for (let i = 0; i < id.length; i++) {
+    hash = id.charCodeAt(i) + ((hash << 5) - hash);
+  }
+
+  return `hsl(${Math.abs(hash) % 360},70%,50%)`;
+};
+
 type TokenPayload = {
   id: string;
   iat: number;
@@ -29,6 +39,7 @@ const Editor = () => {
   const decoded = token ? jwtDecode<TokenPayload>(token) : null;
   const userId = decoded?.id;
 
+  const userColorRef = useRef(getColor(userId!));
   const checkedAutoSaveSwitchRef = useRef(false);
   const [autoSave, setAutoSave] = useState(() => {
     const saved = localStorage.getItem("autosave");
@@ -104,7 +115,6 @@ const Editor = () => {
       }
 
       if (data.type === "receive-cursor-update") {
-
         if (data.userId === userId) return;
 
         const quill = quillRef.current?.getEditor();
@@ -115,7 +125,7 @@ const Editor = () => {
         const existing = cursors.cursors().find((c: any) => c.id === data.userId);
 
         if (!existing) {
-          cursors.createCursor(data.userId, data.userId, "blue");
+          cursors.createCursor(data.userId, data.userId, data.color);
         }
         cursors.moveCursor(data.userId, data.cursor);
       }
@@ -171,6 +181,7 @@ const Editor = () => {
           cursor: selection,
           docId,
           userId,
+          color: userColorRef.current,
         })
       );
     }

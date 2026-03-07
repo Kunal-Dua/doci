@@ -2,6 +2,7 @@ import WebSocket from "ws";
 import Delta from "quill-delta";
 import { prisma } from "../lib/prisma";
 import { Prisma } from "../generated/prisma/client";
+import { useRef } from "react";
 export class DocumnetManager {
   private documnets = new Map<string, Delta>();
   private rooms = new Map<string, Set<WebSocket>>();
@@ -54,9 +55,8 @@ export class DocumnetManager {
     });
   }
 
-  cursorUpdate(docId: string, sender: WebSocket, userId: string, cursor: Range) {
+  cursorUpdate(docId: string, sender: WebSocket, userId: string, cursor: Range, color: string) {
     const clients = this.rooms.get(docId);
-
     clients?.forEach((client) => {
       if (client !== sender && client.readyState === WebSocket.OPEN) {
         client.send(
@@ -64,6 +64,7 @@ export class DocumnetManager {
             type: "receive-cursor-update",
             userId,
             cursor,
+            color,
           }),
         );
       }

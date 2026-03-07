@@ -38,7 +38,7 @@ export async function handleDocumentSocket(ws: WebSocket, docId?: string) {
       docManager.autoSave();
     }
     if (data.type === "cursor-update") {
-      docManager.cursorUpdate(docId, ws, data.userId, data.cursor);
+      docManager.cursorUpdate(docId, ws, data.userId, data.cursor, data.color);
     }
   });
 
