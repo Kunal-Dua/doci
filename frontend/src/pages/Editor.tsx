@@ -1,4 +1,3 @@
-import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import ReactQuill from "react-quill-new";
 import { useLocation } from "react-router-dom";
@@ -10,20 +9,32 @@ const Editor = () => {
   const location = useLocation();
   const doc = location.state || {};
   const docId = doc?.id;
-  const [data, setData] = useState();
   const wsRef = useRef<WebSocket | null>(null);
   const quillRef = useRef<ReactQuill | null>(null);
-  const [checkedSwitch, setCheckedSwitch] = useState(false);
 
-  // useEffect(() => {
-  //   console.log("Data changed:", data);
-  // }, [data]);
+  const checkedAutoSaveSwitchRef = useRef(false);
+  const [autoSave, setAutoSave] = useState(() => {
+    const saved = localStorage.getItem("autosave");
+    return saved === "true";
+  });
+
+  const handleToggleAutoSave = (value: boolean) => {
+    if (!doc.title || doc.title === "undefined") {
+      alert("Please enter title to enable auto save");
+      return;
+    }
+
+    setAutoSave(value);
+    checkedAutoSaveSwitchRef.current = value;
+  };
 
   const onSave = () => {
-    // if (doc.title == "undefined") {
-    //   alert("Please enter title");
-    //   return;
-    // }
+    console.log("save");
+
+    if (doc.title == "undefined" || doc.title == "") {
+      alert("Please enter title");
+      return;
+    }
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       wsRef.current?.send(
         JSON.stringify({
@@ -34,10 +45,24 @@ const Editor = () => {
   };
 
   useEffect(() => {
-    axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/v1/doc/d/${docId}`).catch(err => {
-      console.error("Something went wrong cant fetch document");
-    });
+    localStorage.setItem("autosave", autoSave.toString());
+    if (!autoSave) return;
 
+    if (autoSave) {
+      const interval = setInterval(() => {
+        if (wsRef.current?.readyState === WebSocket.OPEN) {
+          wsRef.current?.send(
+            JSON.stringify({
+              type: "autosave-changes",
+            })
+          );
+        }
+      }, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [autoSave]);
+
+  useEffect(() => {
     const ws = new WebSocket(`${import.meta.env.VITE_WS_BACKEND_URL}/ws/doc/${docId}`);
     wsRef.current = ws;
     ws.onmessage = event => {
@@ -47,7 +72,6 @@ const Editor = () => {
 
       if (data.type === "load-document") {
         editor.setContents(data.delta);
-        setData(data.delta);
       }
 
       if (data.type === "receive-changes") {
@@ -60,8 +84,6 @@ const Editor = () => {
           const newIndex = delta.transformPosition(range.index);
           editor.setSelection(newIndex, range.length);
         }
-        // editor.updateContents(data.delta);
-        // setData(m => m + data.delta);
       }
     };
 
@@ -85,7 +107,6 @@ const Editor = () => {
     source: EmitterSource,
     editor: ReactQuill.UnprivilegedEditor
   ) => {
-    // setData(value);
 
     const ws = wsRef.current;
     const cursor = editor.getSelection();
@@ -105,10 +126,10 @@ const Editor = () => {
       <DocToolBar
         doc={doc}
         onSave={onSave}
-        checkedSwitch={checkedSwitch}
-        setCheckedSwitch={setCheckedSwitch}
+        autoSave={autoSave}
+        onToggleAutoSave={handleToggleAutoSave}
       />
-      <ReactQuill ref={quillRef} theme="snow" value={data} onChange={handleChange} />
+      <ReactQuill ref={quillRef} theme="snow" onChange={handleChange} />
     </>
   );
 };

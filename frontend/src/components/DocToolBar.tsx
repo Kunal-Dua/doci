@@ -1,4 +1,8 @@
-import React, { useState, type ChangeEvent, type MouseEvent } from "react";
+import React, {
+  useState,
+  type ChangeEvent,
+  type MouseEvent,
+} from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -31,11 +35,11 @@ const settings = ["Profile", "Account", "Dashboard", "Logout"];
 type DocToolbarProps = {
   onSave: () => void;
   doc: any;
-  checkedSwitch: boolean;
-  setCheckedSwitch: (checked: boolean) => void;
+  autoSave: boolean;
+  onToggleAutoSave: (value: boolean) => void;
 };
 
-function ResponsiveAppBar({ doc, onSave, checkedSwitch, setCheckedSwitch }: DocToolbarProps) {
+const DocToolBar = ({ doc, onSave, autoSave, onToggleAutoSave }: DocToolbarProps) => {
   // PAGE MENU STATE
 
   const [anchorElPage, setAnchorElPage] = useState<null | HTMLElement>(null);
@@ -84,11 +88,10 @@ function ResponsiveAppBar({ doc, onSave, checkedSwitch, setCheckedSwitch }: DocT
   };
 
   const handleChangeSwitch = (event: ChangeEvent<HTMLInputElement>) => {
-    if ((doc.title !== "undefined" || doc.title !== "") && checkedSwitch === true)
-      setCheckedSwitch(event.target.checked);
-    else {
+    if (doc.title && doc.title !== "undefined") {
+      onToggleAutoSave(event.target.checked);
+    } else {
       alert("Please enter title to enable auto save");
-      return;
     }
   };
 
@@ -204,7 +207,7 @@ function ResponsiveAppBar({ doc, onSave, checkedSwitch, setCheckedSwitch }: DocT
           <Box>
             <FormControlLabel
               control={
-                <Switch color="secondary" checked={checkedSwitch} onChange={handleChangeSwitch} />
+                <Switch color="secondary" checked={autoSave} onChange={handleChangeSwitch} />
               }
               label="Auto Save"
             />
@@ -261,6 +264,6 @@ function ResponsiveAppBar({ doc, onSave, checkedSwitch, setCheckedSwitch }: DocT
       </Container>
     </AppBar>
   );
-}
+};
 
-export default ResponsiveAppBar;
+export default React.memo(DocToolBar);

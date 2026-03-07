@@ -5,6 +5,8 @@ import { Prisma } from "../generated/prisma/client";
 export class DocumnetManager {
   private documnets = new Map<string, Delta>();
   private rooms = new Map<string, Set<WebSocket>>();
+  private dirtyDocs = new Set<string>();
+  private saving = false;
 
   join(docId: string, ws: WebSocket) {
     if (!this.rooms.has(docId)) {
@@ -36,6 +38,7 @@ export class DocumnetManager {
   }
 
   update(docId: string, delta: Delta) {
+    this.dirtyDocs.add(docId);
     const incoming = new Delta(delta);
 
     let doc = this.documnets.get(docId) ?? new Delta();
@@ -51,10 +54,27 @@ export class DocumnetManager {
     });
   }
 
+  async autoSave() {
+    if (this.saving) return;
+    this.saving = true;
+    try {
+      for (const docId of this.dirtyDocs) {
+        await this.save(docId);
+      }
+    } finally {
+      this.saving = false;
+    }
+  }
+
   async save(docId: string) {
     let doc = this.documnets.get(docId);
     if (!doc) {
       doc = new Delta();
+    }
+
+    if (!this.dirtyDocs.has(docId)) {
+      console.log("already saved no new update");
+      return;
     }
 
     await prisma.doc.update({
@@ -65,7 +85,6 @@ export class DocumnetManager {
         content: doc.ops as Prisma.InputJsonValue,
       },
     });
+    this.dirtyDocs.delete(docId);
   }
-
-  //TODO: add auto save
 }

@@ -5,10 +5,6 @@ import { DocRole } from "../generated/prisma/enums.js";
 import { updateDoc, deleteDoc, getDoc, collabDoc } from "../schemas/docSchema.js";
 const docRouter = express.Router();
 
-docRouter.get("/d/:docId", async (req, res) => {
-  res.json("in ws");
-});
-
 docRouter.use(authMiddleware);
 
 docRouter.get("/alldoc", async (req, res) => {

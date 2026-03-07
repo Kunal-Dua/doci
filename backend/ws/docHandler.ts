@@ -34,6 +34,9 @@ export async function handleDocumentSocket(ws: WebSocket, docId?: string) {
     if (data.type === "save-changes") {
       docManager.save(docId);
     }
+    if (data.type === "autosave-changes") {
+      docManager.autoSave();
+    }
   });
 
   ws.on("close", () => {
