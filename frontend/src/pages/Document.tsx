@@ -35,16 +35,11 @@ const Document = () => {
   };
 
   async function createDoc() {
-    // FIXME: post to get possible
-    const doc = await axios.post(
-      `${import.meta.env.VITE_BACKEND_URL}/api/v1/doc/create`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    );
+    const doc = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/v1/doc/create`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
     navigate("/editor", { state: doc.data });
   }
 
