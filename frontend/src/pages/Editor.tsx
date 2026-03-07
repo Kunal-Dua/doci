@@ -34,7 +34,7 @@ const Editor = () => {
   };
 
   useEffect(() => {
-    axios.get(`${import.meta.env.VITE_BASE_URL}/api/v1/doc/d/${docId}`).catch(err => {
+    axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/v1/doc/d/${docId}`).catch(err => {
       console.error("Something went wrong cant fetch document");
     });
 

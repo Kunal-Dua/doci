@@ -7,6 +7,8 @@ export async function handleDocumentSocket(ws: WebSocket, docId?: string) {
     return ws.close();
   }
 
+  docManager.join(docId, ws);
+
   ws.send(
     JSON.stringify({
       type: "load-document",
@@ -31,10 +33,6 @@ export async function handleDocumentSocket(ws: WebSocket, docId?: string) {
 
     if (data.type === "save-changes") {
       docManager.save(docId);
-    }
-
-    if (data.type === "add-collab") {
-      docManager.addCollab(docId);
     }
   });
 

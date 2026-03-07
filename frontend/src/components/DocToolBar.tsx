@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useState, type ChangeEvent, type MouseEvent } from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -14,6 +14,8 @@ import AdbIcon from "@mui/icons-material/Adb";
 import TextField from "@mui/material/TextField";
 import Switch from "@mui/material/Switch";
 import FormControlLabel from "@mui/material/FormControlLabel";
+import Popover from "@mui/material/Popover";
+import axios from "axios";
 
 const pages = ["File", "Edit", "View", "Format"];
 
@@ -33,17 +35,22 @@ type DocToolbarProps = {
   setCheckedSwitch: (checked: boolean) => void;
 };
 
-function ResponsiveAppBar({ doc, onSave, checkedSwitch, setCheckedSwitch }: DocToolbarProps) {
+function ResponsiveAppBar({
+  doc,
+  onSave,
+  checkedSwitch,
+  setCheckedSwitch,
+}: DocToolbarProps) {
   // PAGE MENU STATE
 
-  const [anchorElPage, setAnchorElPage] = React.useState<null | HTMLElement>(null);
-  const [activePage, setActivePage] = React.useState<string>("");
+  const [anchorElPage, setAnchorElPage] = useState<null | HTMLElement>(null);
+  const [activePage, setActivePage] = useState<string>("");
 
   // USER MENU STATE
-  const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
+  const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
 
   // OPEN PAGE MENU
-  const handleOpenPageMenu = (event: React.MouseEvent<HTMLElement>, page: string) => {
+  const handleOpenPageMenu = (event: MouseEvent<HTMLElement>, page: string) => {
     setAnchorElPage(event.currentTarget);
     setActivePage(page);
   };
@@ -73,7 +80,7 @@ function ResponsiveAppBar({ doc, onSave, checkedSwitch, setCheckedSwitch }: DocT
   };
 
   // USER MENU
-  const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
+  const handleOpenUserMenu = (event: MouseEvent<HTMLElement>) => {
     setAnchorElUser(event.currentTarget);
   };
 
@@ -81,14 +88,38 @@ function ResponsiveAppBar({ doc, onSave, checkedSwitch, setCheckedSwitch }: DocT
     setAnchorElUser(null);
   };
 
-  const handleChangeSwitch = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeSwitch = (event: ChangeEvent<HTMLInputElement>) => {
     if ((doc.title !== "undefined" || doc.title !== "") && checkedSwitch === true)
       setCheckedSwitch(event.target.checked);
-    else{
-        alert("Please enter title to enable auto save");
-        return;
+    else {
+      alert("Please enter title to enable auto save");
+      return;
     }
   };
+
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+  const [email, setEmail] = useState("");
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const addCollabEmail = async () => {
+    console.log(email);
+    await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/v1/doc/collab`, {docId:doc.id,email:email}, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+    setEmail("");
+    handleClose();
+  };
+
+  const open = Boolean(anchorEl);
 
   return (
     <AppBar position="static">
@@ -132,6 +163,33 @@ function ResponsiveAppBar({ doc, onSave, checkedSwitch, setCheckedSwitch }: DocT
           </Menu>
 
           {/* ===== DOCUMENT TITLE ===== */}
+          <Box>
+            <Button variant="contained" onClick={handleClick}>
+              Add Email
+            </Button>
+            <Popover
+              open={open}
+              anchorEl={anchorEl}
+              onClose={handleClose}
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "left",
+              }}
+            >
+              <Box sx={{ p: 2, display: "flex", gap: 1 }}>
+                <TextField
+                  size="small"
+                  label="Email"
+                  type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                />
+                <Button variant="contained" onClick={addCollabEmail}>
+                  Add
+                </Button>
+              </Box>
+            </Popover>
+          </Box>
           <Box>
             <FormControlLabel
               control={

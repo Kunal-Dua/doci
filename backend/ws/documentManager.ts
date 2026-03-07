@@ -2,7 +2,6 @@ import WebSocket from "ws";
 import Delta from "quill-delta";
 import { prisma } from "../lib/prisma";
 import { Prisma } from "../generated/prisma/client";
-
 export class DocumnetManager {
   private documnets = new Map<string, Delta>();
   private rooms = new Map<string, Set<WebSocket>>();
@@ -12,7 +11,6 @@ export class DocumnetManager {
       this.rooms.set(docId, new Set());
       this.documnets.set(docId, new Delta());
     }
-
     this.rooms.get(docId)!.add(ws);
   }
 
@@ -34,7 +32,6 @@ export class DocumnetManager {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const delta = new Delta(dbDoc.content as any);
     this.documnets.set(docId, delta);
-    
     return delta;
   }
 
@@ -69,9 +66,6 @@ export class DocumnetManager {
       },
     });
   }
-
-  //TODO: add collab logic
-  async addCollab(docId: string) {}
 
   //TODO: add auto save
 }

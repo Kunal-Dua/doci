@@ -2,7 +2,7 @@ import express from "express";
 import { authMiddleware } from "../middleware/authMiddleware.js";
 import { prisma } from "../lib/prisma.js";
 import { DocRole } from "../generated/prisma/enums.js";
-import { updateDoc, deleteDoc, getDoc } from "../schemas/docSchema.js";
+import { updateDoc, deleteDoc, getDoc, collabDoc } from "../schemas/docSchema.js";
 const docRouter = express.Router();
 
 docRouter.get("/d/:docId", async (req, res) => {
@@ -73,6 +73,52 @@ docRouter.put("/update", async (req, res) => {
   });
 
   return res.json(docId);
+});
+
+docRouter.post("/collab", async (req, res) => {
+  const bodyParsed = collabDoc.safeParse(req.body);
+
+  if (!bodyParsed.success) {
+    return res.status(400).json({ msg: "Wrong inputs" });
+  }
+
+  const collabUser = await prisma.user.findUnique({
+    where: {
+      email: bodyParsed.data.email,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!collabUser) {
+    return res.status(400).json({ msg: "User does not exist" });
+  }
+
+  if (collabUser.id === req.userid) {
+    return res.status(400).json({ msg: "You are already owner of this file" });
+  }
+
+  await prisma.doc.update({
+    where: { id: bodyParsed.data.docId },
+    data: {
+      collaborators: {
+        connectOrCreate: {
+          where: {
+            docId_userId: {
+              docId: bodyParsed.data.docId,
+              userId: collabUser.id,
+            },
+          },
+          create: {
+            userId: collabUser.id,
+          },
+        },
+      },
+    },
+  });
+
+  return res.send("Successfully added user");
 });
 
 docRouter.delete("/delete", async (req, res) => {
