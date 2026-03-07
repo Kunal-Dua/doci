@@ -9,7 +9,6 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
-import Popover from "@mui/material/Popover";
 import Switch from "@mui/material/Switch";
 import TextField from "@mui/material/TextField";
 import Toolbar from "@mui/material/Toolbar";
@@ -18,15 +17,8 @@ import Typography from "@mui/material/Typography";
 import axios from "axios";
 import { useRecoilValue } from "recoil";
 import { docAtom } from "../store/atom/docAtom";
-
-const pages = ["File", "Edit", "View", "Format"];
-
-const menuOptions: Record<string, string[]> = {
-  File: ["New", "Open", "Save", "Save As"],
-  Edit: ["Undo", "Redo", "Cut", "Copy", "Paste"],
-  View: ["Zoom In", "Zoom Out", "Full Screen"],
-  Format: ["Bold", "Italic", "Underline"],
-};
+import MenuDropDown from "./MenuDropDown";
+import Popup from "./Popup";
 
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
@@ -39,43 +31,8 @@ type DocToolbarProps = {
 const DocToolBar = ({ onSave, autoSave, onToggleAutoSave }: DocToolbarProps) => {
   const doc = useRecoilValue(docAtom);
 
-  // PAGE MENU STATE
-
-  const [anchorElPage, setAnchorElPage] = useState<null | HTMLElement>(null);
-  const [activePage, setActivePage] = useState<string>("");
-
   // USER MENU STATE
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
-
-  // OPEN PAGE MENU
-  const handleOpenPageMenu = (event: MouseEvent<HTMLElement>, page: string) => {
-    setAnchorElPage(event.currentTarget);
-    setActivePage(page);
-  };
-
-  const handleClosePageMenu = () => {
-    setAnchorElPage(null);
-    setActivePage("");
-  };
-
-  const handleMenuOptionClick = (page: string, option: string) => {
-    console.log("Page:", page);
-    console.log("Clicked:", option);
-
-    // example actions
-    if (page === "File" && option === "New") {
-      // create new file logic
-    }
-
-    if (page === "File" && option === "Save") {
-      // save logic
-    }
-
-    if (page === "Edit" && option === "Copy") {
-    }
-
-    handleClosePageMenu();
-  };
 
   // USER MENU
   const handleOpenUserMenu = (event: MouseEvent<HTMLElement>) => {
@@ -94,31 +51,6 @@ const DocToolBar = ({ onSave, autoSave, onToggleAutoSave }: DocToolbarProps) => 
     }
   };
 
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-  const [email, setEmail] = useState("");
-
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const addCollabEmail = async () => {
-    await axios.post(
-      `${import.meta.env.VITE_BACKEND_URL}/api/v1/doc/collab`,
-      { docId: doc.id, email: email },
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    );
-    setEmail("");
-    handleClose();
-  };
-
   const [title, setTitle] = useState(doc.title);
   const onUpdateTitle = async () => {
     await axios.put(
@@ -132,77 +64,15 @@ const DocToolBar = ({ onSave, autoSave, onToggleAutoSave }: DocToolbarProps) => 
     );
   };
 
-  const open = Boolean(anchorEl);
-
   return (
     <AppBar position="static">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           {/* LOGO */}
           <AdbIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
-
-          {/* ===== PAGE BUTTONS ===== */}
-          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
-            {pages.map(page => (
-              <Button
-                key={page}
-                onClick={e => handleOpenPageMenu(e, page)}
-                sx={{ my: 2, color: "white", display: "block" }}
-              >
-                {page}
-              </Button>
-            ))}
-          </Box>
-
-          {/* ===== PAGE DROPDOWN MENU ===== */}
-          <Menu
-            anchorEl={anchorElPage}
-            open={Boolean(anchorElPage)}
-            onClose={handleClosePageMenu}
-            anchorOrigin={{
-              vertical: "bottom",
-              horizontal: "left",
-            }}
-            transformOrigin={{
-              vertical: "top",
-              horizontal: "left",
-            }}
-          >
-            {(menuOptions[activePage] || []).map(option => (
-              <MenuItem key={option} onClick={() => handleMenuOptionClick(activePage, option)}>
-                <Typography>{option}</Typography>
-              </MenuItem>
-            ))}
-          </Menu>
-
+          <MenuDropDown />
           {/* ===== DOCUMENT TITLE ===== */}
-          <Box>
-            <Button variant="contained" onClick={handleClick}>
-              Add Email
-            </Button>
-            <Popover
-              open={open}
-              anchorEl={anchorEl}
-              onClose={handleClose}
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "left",
-              }}
-            >
-              <Box sx={{ p: 2, display: "flex", gap: 1 }}>
-                <TextField
-                  size="small"
-                  label="Email"
-                  type="email"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                />
-                <Button variant="contained" onClick={addCollabEmail}>
-                  Add
-                </Button>
-              </Box>
-            </Popover>
-          </Box>
+          <Popup />
           <Box>
             <FormControlLabel
               control={
@@ -229,7 +99,6 @@ const DocToolBar = ({ onSave, autoSave, onToggleAutoSave }: DocToolbarProps) => 
               Save
             </Button>
           </Box>
-
           {/* ===== USER AVATAR ===== */}
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
